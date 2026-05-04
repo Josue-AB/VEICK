@@ -12,13 +12,13 @@ function ComoFunciona() {
     },
     {
       num: "3",
-      title: "Subtítulos automáticos",
+      title: "Diálogos automáticos",
       desc: "El audio del entorno se transcribe al instante para que el usuario lea lo que ocurre a su alrededor.",
     },
     {
       num: "4",
-      title: "Avatar intérprete",
-      desc: "Un avatar 3D traduce texto o voz a señas, permitiendo comunicación completamente bidireccional.",
+      title: "Intérpretacion bidireccional",
+      desc: "Un algoritmo traduce texto o voz a señas, permitiendo comunicación completamente bidireccional.",
     },
   ];
 

@@ -13,8 +13,8 @@ const demoSteps = [
   },
   {
     num: "03",
-    title: "Texto en pantalla",
-    desc: "El interlocutor ve el mensaje de forma clara e inmediata.",
+    title: "Señas a voz",
+    desc: "El interlocutor escucha el mensaje de forma clara e inmediata.",
   },
   {
     num: "04",

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
+from app.services.alexa_service import get_paths, run_command, create_user_config
 from app.db.session import SessionLocal
 from app.db import models
-from app.core.security import hash_password, verify_password, create_token
 
 router = APIRouter()
 
-# 🔹 DB
 def get_db():
     db = SessionLocal()
     try:
@@ -15,32 +15,67 @@ def get_db():
     finally:
         db.close()
 
-# 🔹 REGISTER
-@router.post("/register")
-def register(data: dict, db: Session = Depends(get_db)):
 
-    existing = db.query(models.User).filter_by(email=data["email"]).first()
+# 🔹 ADD DEVICE
+@router.post("/add-device")
+def add_device(data: dict, user=Depends(get_current_user), db: Session = Depends(get_db)):
+
+    user_id = user["user_id"]
+
+    existing = db.query(models.AlexaDevice).filter_by(user_id=user_id).first()
     if existing:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Device already exists")
 
-    user = models.User(
-        email=data["email"],
-        password_hash=hash_password(data["password"])
+    paths = create_user_config(user_id)
+
+    device = models.AlexaDevice(
+        user_id=user_id,
+        amazon_email=data["amazon_email"],
+        config_path=paths["config"],
+        cookie_path=paths["cookie"],
+        status="AUTH_REQUIRED"
     )
 
-    db.add(user)
+    db.add(device)
     db.commit()
 
-    return {"msg": "user creado"}
+    return {"msg": "device creado"}
 
-# 🔹 LOGIN
-@router.post("/login")
-def login(data: dict, db: Session = Depends(get_db)):
 
-    user = db.query(models.User).filter_by(email=data["email"]).first()
+# 🔹 SEND INSTRUCTION
+@router.post("/send-instruction")
+async def send(data: dict, user=Depends(get_current_user)):
+    
+    instruction = data.get("instruction")
 
-    if not user or not verify_password(data["password"], user.password_hash):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    if not instruction:
+        raise HTTPException(status_code=400, detail="No instruction")
 
-    token = create_token({"user_id": str(user.id)})
-    return {"token": token}
+    user_id = user["user_id"]
+
+    paths = get_paths(user_id)
+
+    code, out, err = await run_command(paths["config"], instruction)
+
+    if code != 0:
+        raise HTTPException(status_code=401, detail="Alexa error")
+
+    return {"status": "sent", "output": out}
+
+
+# 🔹 UPLOAD COOKIE (FUERA de send)
+@router.post("/upload-cookie")
+def upload_cookie(data: dict, user=Depends(get_current_user)):
+
+    user_id = user["user_id"]
+    cookie_content = data.get("cookie")
+
+    if not cookie_content:
+        raise HTTPException(status_code=400, detail="No cookie provided")
+
+    paths = get_paths(user_id)
+
+    with open(paths["cookie"], "w") as f:
+        f.write(cookie_content)
+
+    return {"msg": "cookie guardada"}

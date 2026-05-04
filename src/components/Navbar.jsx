@@ -81,14 +81,14 @@ const sections = {
   solucion: {
     badge: "Nuestra propuesta",
     title: "La solución",
-    subtitle: "Un sistema tecnológico que traduce, subtitula e interpreta en tiempo real, rompiendo las barreras de comunicación.",
+    subtitle: "Un sistema tecnológico que traduce, vocaliza e interpreta en tiempo real, rompiendo las barreras de comunicación.",
     content: (
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           {[
             { n: "1", title: "Reconocimiento de señas en tiempo real", desc: "Cámara + IA que interpreta la LSM y la convierte en texto o voz al instante." },
-            { n: "2", title: "Subtítulos automáticos",                 desc: "Transcripción inmediata del audio ambiente para que el usuario pueda leer lo que ocurre." },
-            { n: "3", title: "Avatar intérprete de LSM",               desc: "Personaje animado que traduce texto o voz a Lengua de Señas para comunicación bidireccional." },
+            { n: "2", title: "Diálogos automáticos",                 desc: "Transcripción inmediata del audio ambiente para que el usuario pueda leer lo que ocurre." },
+            { n: "3", title: "Intérprete de LSM",               desc: "Algoritmo que traduce texto o voz a Lengua de Señas para comunicación bidireccional." },
             { n: "4", title: "Interfaz accesible y simple",            desc: "Diseño visual claro, botones grandes y flujos intuitivos pensados desde cero para la comunidad sorda." },
           ].map((s) => (
             <div key={s.n} className="flex gap-3">
@@ -103,9 +103,9 @@ const sections = {
           ))}
         </div>
         <div className="grid grid-cols-1 gap-4 content-start">
-          <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Antes</p>
-            <p className="text-sm text-gray-600 leading-relaxed">El usuario sordo llega a una cita médica sin intérprete. No puede comunicarse. Sale sin atención.</p>
+          <div className="bg-white border border-red-200 rounded-xl p-5">
+            <p className="text-xs text-red-400 mb-2 font-medium uppercase tracking-wide">Antes</p>
+            <p className="text-sm text-red-600 leading-relaxed">El usuario sordo llega a una cita médica sin intérprete. No puede comunicarse. Sale sin atención.</p>
           </div>
           <div className="bg-teal-50 border-2 border-teal-400 rounded-xl p-5">
             <span className="inline-block text-xs font-medium bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full mb-2">Con nuestra solución</span>
@@ -127,7 +127,7 @@ const sections = {
           {[
             { icon: "✉️", title: "Correo electrónico", desc: "contacto@proyecto.mx" },
             { icon: "📹", title: "Videollamada en LSM", desc: "Agenda una sesión con intérprete certificado." },
-            { icon: "📍", title: "Ubicación",           desc: "Ciudad de México, México." },
+            { icon: "📍", title: "Ubicación",           desc: "Guadalajara, Jalisco,México." },
           ].map((c) => (
             <div key={c.title} className="flex items-start gap-3 bg-white border border-gray-100 rounded-xl p-4">
               <span className="text-lg mt-0.5">{c.icon}</span>
@@ -343,9 +343,16 @@ function Navbar() {
         <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-4">
 
           {/* LOGO */}
-          <h1 className={`text-2xl md:text-3xl lg:text-4xl font-bold transition-colors duration-300 ${isLight ? "text-blue-600" : "text-white"}`}>
-            VEICK
-          </h1>
+         <div className="flex items-center gap-3">
+        <img
+    src="Veick_logo.png"
+    alt="Logo VEICK"
+    className="bg- transparent w-15 h-15 object-cover centered"
+  />
+  <h1 className={`text-2xl md:text-3xl lg:text-4xl font-bold transition-colors duration-300 ${isLight ? "text-blue-600" : "text-white"}`}>
+    VEICK
+  </h1>
+</div>
 
           {/* MENÚ */}
           <div className="hidden md:flex space-x-8 font-medium">
