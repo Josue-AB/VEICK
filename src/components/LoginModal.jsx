@@ -1,40 +1,23 @@
 import { useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 
-/*
-  ─────────────────────────────────────────────────────
-  CONFIGURACIÓN EMAILJS
-  1. Crea cuenta gratis en https://www.emailjs.com
-  2. Crea un Email Service (Gmail, Outlook, etc.)
-  3. Crea un Email Template con estas variables:
-       {{to_email}}   → correo del usuario
-       {{password}}   → contraseña a enviar
-       {{user_name}}  → nombre del usuario (opcional)
-  4. Reemplaza los tres valores de abajo con los tuyos
-  ─────────────────────────────────────────────────────
-*/
 const EMAILJS_SERVICE_ID  = "TU_SERVICE_ID";
 const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
 const EMAILJS_PUBLIC_KEY  = "TU_PUBLIC_KEY";
 
-/*
-  Base de usuarios simulada.
-  En producción esto vendría de tu backend / Firebase.
-  La clave es el correo en minúsculas.
-*/
 const USUARIOS_DB = {
   "usuario@correo.com": { password: "veick2024", nombre: "Juan García" },
   "demo@veick.mx":      { password: "demo1234",  nombre: "Usuario Demo" },
 };
 
 export default function LoginModal({ onClose, onLoginSuccess }) {
-  const [vista, setVista]         = useState("login");   // "login" | "forgot"
-  const [form, setForm]           = useState({ correo: "", password: "" });
+  const [vista, setVista]             = useState("login");
+  const [form, setForm]               = useState({ correo: "", password: "" });
   const [forgotEmail, setForgotEmail] = useState("");
-  const [errors, setErrors]       = useState({});
-  const [loading, setLoading]     = useState(false);
-  const [sentOk, setSentOk]       = useState(false);
-  const [showPass, setShowPass]   = useState(false);
+  const [errors, setErrors]           = useState({});
+  const [loading, setLoading]         = useState(false);
+  const [sentOk, setSentOk]           = useState(false);
+  const [showPass, setShowPass]       = useState(false);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -46,108 +29,111 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
     };
   }, [onClose]);
 
-  /* ── Login ── */
   const handleLogin = () => {
     const e = {};
     if (!form.correo.trim())   e.correo   = "Ingresa tu correo";
     if (!form.password.trim()) e.password = "Ingresa tu contraseña";
     if (Object.keys(e).length) { setErrors(e); return; }
-
     const user = USUARIOS_DB[form.correo.toLowerCase()];
-    if (!user) {
-      setErrors({ correo: "Correo no registrado" });
-      return;
-    }
-    if (user.password !== form.password) {
-      setErrors({ password: "Contraseña incorrecta" });
-      return;
-    }
-
+    if (!user) { setErrors({ correo: "Correo no registrado" }); return; }
+    if (user.password !== form.password) { setErrors({ password: "Contraseña incorrecta" }); return; }
     onLoginSuccess(user.nombre);
     onClose();
   };
 
-  /* ── Recuperar contraseña ── */
   const handleForgot = async () => {
     if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)) {
-      setErrors({ forgotEmail: "Ingresa un correo válido" });
-      return;
+      setErrors({ forgotEmail: "Ingresa un correo válido" }); return;
     }
-
     const user = USUARIOS_DB[forgotEmail.toLowerCase()];
-    if (!user) {
-      setErrors({ forgotEmail: "No encontramos una cuenta con ese correo" });
-      return;
-    }
-
+    if (!user) { setErrors({ forgotEmail: "No encontramos una cuenta con ese correo" }); return; }
     setLoading(true);
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-          to_email:  forgotEmail.toLowerCase(),
-          user_name: user.nombre,
-          password:  user.password,
-        },
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID,
+        { to_email: forgotEmail.toLowerCase(), user_name: user.nombre, password: user.password },
         EMAILJS_PUBLIC_KEY
       );
       setSentOk(true);
-    } catch (err) {
+    } catch {
       setErrors({ forgotEmail: "Error al enviar. Intenta de nuevo." });
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = (key) =>
-    `w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-colors
-    ${errors[key]
-      ? "border-red-300 focus:border-red-400 bg-red-50"
-      : "border-gray-200 focus:border-orange-400 focus:ring-1 focus:ring-orange-100"}`;
+  const inputBase = (key) => ({
+    width: "100%",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    border: `0.5px solid ${errors[key] ? "#F09595" : "#B5D4F4"}`,
+    background: errors[key] ? "#FCEBEB" : "#E6F1FB",
+    fontSize: "14px",
+    color: "#042C53",
+    outline: "none",
+  });
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: "rgba(4,44,83,0.75)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden">
+      <div
+        className="w-full max-w-sm overflow-hidden rounded-2xl"
+        style={{ border: "0.5px solid #B5D4F4" }}
+      >
 
-        {/* ── Header ── */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex items-start justify-between">
+        {/* Header */}
+        <div
+          className="flex items-start justify-between px-6 pt-5 pb-4"
+          style={{ background: "#E6F1FB", borderBottom: "0.5px solid #B5D4F4" }}
+        >
           <div>
-            <h2 className="text-lg font-medium text-gray-900">
+            <h2 className="text-lg font-semibold" style={{ color: "#042C53" }}>
               {vista === "login" ? "Iniciar sesión" : "Recuperar contraseña"}
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs mt-0.5" style={{ color: "#378ADD" }}>
               {vista === "login"
                 ? "Bienvenido de vuelta a VEICK"
                 : "Te enviaremos tu contraseña por correo"}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1 mt-0.5">✕</button>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 flex-shrink-0"
+            style={{ background: "#fff", border: "0.5px solid #B5D4F4", color: "#185FA5" }}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* ── Vista: Login ── */}
+        {/* Vista: Login */}
         {vista === "login" && (
-          <div className="px-6 py-5 space-y-4">
+          <div className="px-6 py-5 space-y-4" style={{ background: "#fff" }}>
 
             {/* Correo */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "#0C447C" }}>
+                Correo electrónico
+              </label>
               <input
                 type="email"
                 placeholder="tu@correo.com"
                 value={form.correo}
                 onChange={(e) => { setForm({ ...form, correo: e.target.value }); setErrors({ ...errors, correo: "" }); }}
-                className={inputClass("correo")}
+                style={inputBase("correo")}
               />
-              {errors.correo && <p className="text-xs text-red-500 mt-1">{errors.correo}</p>}
+              {errors.correo && <p className="text-xs mt-1" style={{ color: "#E24B4A" }}>{errors.correo}</p>}
             </div>
 
             {/* Contraseña */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Contraseña</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "#0C447C" }}>
+                Contraseña
+              </label>
               <div className="relative">
                 <input
                   type={showPass ? "text" : "password"}
@@ -155,12 +141,13 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
                   value={form.password}
                   onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
                   onKeyDown={(e) => { if (e.key === "Enter") handleLogin(); }}
-                  className={`${inputClass("password")} pr-10`}
+                  style={{ ...inputBase("password"), paddingRight: "42px" }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((p) => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#378ADD" }}
                 >
                   {showPass ? (
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -176,14 +163,15 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
                   )}
                 </button>
               </div>
-              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-xs mt-1" style={{ color: "#E24B4A" }}>{errors.password}</p>}
             </div>
 
             {/* ¿Olvidaste tu contraseña? */}
             <div className="text-right">
               <button
                 onClick={() => { setVista("forgot"); setErrors({}); }}
-                className="text-xs text-orange-500 hover:text-orange-600 hover:underline transition-colors"
+                className="text-xs hover:underline transition-colors"
+                style={{ color: "#185FA5", background: "none", border: "none", cursor: "pointer" }}
               >
                 ¿Olvidaste tu contraseña?
               </button>
@@ -193,13 +181,15 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                style={{ border: "0.5px solid #B5D4F4", background: "#fff", color: "#185FA5" }}
               >
                 Cancelar
               </button>
               <button
                 onClick={handleLogin}
-                className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90"
+                style={{ background: "#185FA5", color: "#fff", border: "none" }}
               >
                 Entrar
               </button>
@@ -207,38 +197,42 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
           </div>
         )}
 
-        {/* ── Vista: Recuperar contraseña ── */}
+        {/* Vista: Recuperar contraseña */}
         {vista === "forgot" && (
-          <div className="px-6 py-5 space-y-4">
+          <div className="px-6 py-5 space-y-4" style={{ background: "#fff" }}>
             {!sentOk ? (
               <>
-                <p className="text-sm text-gray-500 leading-relaxed">
+                <p className="text-sm leading-relaxed" style={{ color: "#0C447C" }}>
                   Ingresa el correo con el que te registraste y te enviaremos tu contraseña.
                 </p>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Correo electrónico</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "#0C447C" }}>
+                    Correo electrónico
+                  </label>
                   <input
                     type="email"
                     placeholder="tu@correo.com"
                     value={forgotEmail}
                     onChange={(e) => { setForgotEmail(e.target.value); setErrors({}); }}
                     onKeyDown={(e) => { if (e.key === "Enter") handleForgot(); }}
-                    className={inputClass("forgotEmail")}
+                    style={inputBase("forgotEmail")}
                   />
-                  {errors.forgotEmail && <p className="text-xs text-red-500 mt-1">{errors.forgotEmail}</p>}
+                  {errors.forgotEmail && <p className="text-xs mt-1" style={{ color: "#E24B4A" }}>{errors.forgotEmail}</p>}
                 </div>
 
                 <div className="flex gap-3 pt-1">
                   <button
                     onClick={() => { setVista("login"); setErrors({}); setSentOk(false); }}
-                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                    className="flex-1 py-2.5 rounded-xl text-sm font-medium"
+                    style={{ border: "0.5px solid #B5D4F4", background: "#fff", color: "#185FA5" }}
                   >
                     Volver
                   </button>
                   <button
                     onClick={handleForgot}
                     disabled={loading}
-                    className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-60"
+                    style={{ background: "#185FA5", color: "#fff", border: "none" }}
                   >
                     {loading ? (
                       <>
@@ -253,21 +247,26 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
                 </div>
               </>
             ) : (
-              /* Confirmación enviado */
               <div className="text-center py-4 space-y-3">
-                <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <svg className="w-7 h-7 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center mx-auto"
+                  style={{ background: "#E1F5EE" }}
+                >
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none"
+                    stroke="#0F6E56" strokeWidth={2}>
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </div>
-                <h3 className="font-medium text-gray-900">¡Correo enviado!</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Revisa tu bandeja de entrada en <span className="font-medium text-gray-700">{forgotEmail}</span>.
+                <h3 className="font-semibold" style={{ color: "#042C53" }}>¡Correo enviado!</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "#0C447C" }}>
+                  Revisa tu bandeja de entrada en{" "}
+                  <span className="font-medium" style={{ color: "#042C53" }}>{forgotEmail}</span>.
                   Si no lo ves, revisa tu carpeta de spam.
                 </p>
                 <button
                   onClick={() => { setVista("login"); setSentOk(false); setForgotEmail(""); }}
-                  className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors mt-2"
+                  className="w-full py-2.5 rounded-xl text-sm font-medium mt-2 transition-opacity hover:opacity-90"
+                  style={{ background: "#185FA5", color: "#fff", border: "none" }}
                 >
                   Volver al login
                 </button>

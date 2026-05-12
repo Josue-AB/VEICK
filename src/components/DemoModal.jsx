@@ -38,26 +38,54 @@ function DemoModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: "rgba(4,44,83,0.75)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden">
+      <div
+        className="w-full max-w-lg overflow-hidden rounded-2xl"
+        style={{ border: "0.5px solid #B5D4F4" }}
+      >
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="text-base font-medium text-gray-900">
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ background: "#E6F1FB", borderBottom: "0.5px solid #B5D4F4" }}
+        >
+          <h2 className="text-base font-semibold" style={{ color: "#042C53" }}>
             Demostración — VEICK en acción
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: "#fff", border: "0.5px solid #B5D4F4", color: "#185FA5" }}
           >
-            ✕
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
         {/* Video */}
-        <div className="bg-[#0f0f1a] h-56 flex flex-col items-center justify-center gap-3">
+        <div
+          className="relative h-52 flex flex-col items-center justify-center overflow-hidden"
+          style={{ background: "#042C53" }}
+        >
+          {/* Puntos decorativos */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.06) 1.5px, transparent 1.5px)",
+              backgroundSize: "20px 20px",
+            }}
+          />
+          {/* Anillos */}
+          <div className="absolute rounded-full pointer-events-none"
+            style={{ width: "140px", height: "140px", border: "1px solid rgba(255,255,255,0.08)" }} />
+          <div className="absolute rounded-full pointer-events-none"
+            style={{ width: "100px", height: "100px", border: "1px solid rgba(255,255,255,0.1)" }} />
+
           {/*
             REEMPLAZA este bloque con tu video real:
 
@@ -75,32 +103,58 @@ function DemoModal({ onClose }) {
               allowFullScreen
             />
           */}
-          <div className="w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-orange-600 transition-colors">
+          <div
+            className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80"
+            style={{ background: "#185FA5", border: "3px solid rgba(255,255,255,0.2)" }}
+          >
             <svg className="w-6 h-6 ml-1" viewBox="0 0 24 24" fill="white">
               <path d="M5 3l14 9-14 9z" />
             </svg>
           </div>
-          <p className="text-xs text-white/40">Tu video de demostración va aquí</p>
+          <p className="relative z-10 text-xs mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Tu video de demostración va aquí
+          </p>
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-2 gap-3 p-5">
+        <div className="grid grid-cols-2 gap-3 p-5" style={{ background: "#fff" }}>
           {demoSteps.map((s) => (
-            <div key={s.num} className="bg-gray-50 rounded-xl p-4">
-              <p className="text-[10px] font-medium text-orange-500 uppercase tracking-wider mb-1">
+            <div
+              key={s.num}
+              className="relative overflow-hidden rounded-xl p-4"
+              style={{ background: "#E6F1FB", border: "0.5px solid #B5D4F4" }}
+            >
+              {/* Círculo decorativo */}
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  right: "-16px", bottom: "-16px",
+                  width: "64px", height: "64px",
+                  background: "rgba(55,138,221,0.1)",
+                }}
+              />
+              <p
+                className="text-xs font-bold uppercase tracking-widest mb-1"
+                style={{ color: "#185FA5" }}
+              >
                 Paso {s.num}
               </p>
-              <h3 className="text-sm font-medium text-gray-900 mb-1">{s.title}</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
+              <h3 className="text-sm font-semibold mb-1" style={{ color: "#042C53" }}>
+                {s.title}
+              </h3>
+              <p className="text-xs leading-relaxed" style={{ color: "#0C447C" }}>
+                {s.desc}
+              </p>
             </div>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-5 pb-5">
+        <div className="px-5 pb-5" style={{ background: "#fff" }}>
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-orange-200 transition-colors"
+            className="w-full py-3 rounded-xl text-sm font-medium transition-opacity hover:opacity-90"
+            style={{ background: "#185FA5", color: "#fff" }}
           >
             Cerrar
           </button>

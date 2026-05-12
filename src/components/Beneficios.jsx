@@ -3,7 +3,7 @@ function Beneficios() {
     {
       color: "teal",
       icon: (
-        <svg className="w-5 h-5 text-teal-700" viewBox="0 0 24 24" fill="none"
+        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 8h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2" />
           <path d="M12 2v13M9 5l3-3 3 3" />
@@ -15,7 +15,7 @@ function Beneficios() {
       texto: (
         <>
           La accesibilidad que ofrece nuestro proyecto es la{" "}
-          <span className="font-medium text-gray-800">comunicación en cualquier entorno</span>,
+          <strong style={{ color: "#04342C", fontWeight: 500 }}>comunicación en cualquier entorno</strong>,
           con versatilidad de adaptación independiente para cada simulación.
         </>
       ),
@@ -23,7 +23,7 @@ function Beneficios() {
     {
       color: "blue",
       icon: (
-        <svg className="w-5 h-5 text-blue-700" viewBox="0 0 24 24" fill="none"
+        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="3" width="20" height="14" rx="2" />
           <path d="M8 21h8M12 17v4" />
@@ -35,7 +35,7 @@ function Beneficios() {
       texto: (
         <>
           Un modelo de IA{" "}
-          <span className="font-medium text-gray-800">altamente entrenado para predecir gestos biométricos</span>,
+          <strong style={{ color: "#042C53", fontWeight: 500 }}>altamente entrenado para predecir gestos biométricos</strong>,
           interpretando palabras y frases en tiempo real.
         </>
       ),
@@ -43,7 +43,7 @@ function Beneficios() {
     {
       color: "purple",
       icon: (
-        <svg className="w-5 h-5 text-purple-700" viewBox="0 0 24 24" fill="none"
+        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
@@ -56,7 +56,7 @@ function Beneficios() {
       texto: (
         <>
           Inclusión para personas con discapacidad auditiva y{" "}
-          <span className="font-medium text-gray-800">reducción significativa de errores de comunicación</span>{" "}
+          <strong style={{ color: "#26215C", fontWeight: 500 }}>reducción significativa de errores de comunicación</strong>{" "}
           entre personas con discapacidad y la comunidad.
         </>
       ),
@@ -64,9 +64,42 @@ function Beneficios() {
   ];
 
   const accentMap = {
-    teal:   { bar: "bg-teal-500",   iconBg: "bg-teal-50",   label: "text-teal-700",   divider: "bg-teal-500"   },
-    blue:   { bar: "bg-blue-500",   iconBg: "bg-blue-50",   label: "text-blue-700",   divider: "bg-blue-500"   },
-    purple: { bar: "bg-purple-500", iconBg: "bg-purple-50", label: "text-purple-700", divider: "bg-purple-500" },
+    teal: {
+      bg: "#E1F5EE",
+      border: "#9FE1CB",
+      iconBg: "#0F6E56",
+      label: "#0F6E56",
+      bar: "#0F6E56",
+      body: "#085041",
+      subtitle: "#1D9E75",
+      waveFill1: "#9FE1CB",
+      waveFill2: "#1D9E75",
+      waveDir: false,
+    },
+    blue: {
+      bg: "#E6F1FB",
+      border: "#B5D4F4",
+      iconBg: "#185FA5",
+      label: "#185FA5",
+      bar: "#185FA5",
+      body: "#0C447C",
+      subtitle: "#378ADD",
+      waveFill1: "#B5D4F4",
+      waveFill2: "#378ADD",
+      waveDir: true,
+    },
+    purple: {
+      bg: "#EEEDFE",
+      border: "#CECBF6",
+      iconBg: "#534AB7",
+      label: "#534AB7",
+      bar: "#534AB7",
+      body: "#3C3489",
+      subtitle: "#7F77DD",
+      waveFill1: "#CECBF6",
+      waveFill2: "#7F77DD",
+      waveDir: false,
+    },
   };
 
   return (
@@ -74,40 +107,85 @@ function Beneficios() {
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
         {beneficios.map(({ color, icon, label, titulo, subtitulo, texto }) => {
           const a = accentMap[color];
+          const w = a.waveDir;
           return (
             <div
               key={titulo}
-              className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm relative overflow-hidden
-                         transition-transform duration-200 hover:-translate-y-1 hover:shadow-md"
+              className="relative overflow-hidden rounded-2xl"
+              style={{
+                background: a.bg,
+                border: `0.5px solid ${a.border}`,
+                minHeight: "280px",
+              }}
             >
-              {/* Barra de acento superior */}
-              <div className={`absolute top-0 left-0 right-0 h-1 ${a.bar} rounded-t-2xl`} />
+              {/* Círculo decorativo grande */}
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  right: "-40px", top: "-40px",
+                  width: "160px", height: "160px",
+                  background: `${a.iconBg}12`,
+                }}
+              />
+              {/* Círculo decorativo anillo */}
+              <div
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  right: "15px", top: "15px",
+                  width: "80px", height: "80px",
+                  border: `1.5px solid ${a.iconBg}22`,
+                }}
+              />
 
-              {/* Ícono */}
-              <div className={`w-10 h-10 rounded-xl ${a.iconBg} flex items-center justify-center mb-5`}>
-                {icon}
+              {/* Contenido */}
+              <div className="relative z-10 p-7 pb-0">
+                <div className="flex items-start gap-4">
+                  {/* Ícono */}
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                    style={{ background: a.iconBg }}
+                  >
+                    {icon}
+                  </div>
+
+                  <div>
+                    <p
+                      className="text-xs font-semibold tracking-widest uppercase mb-1"
+                      style={{ color: a.label }}
+                    >
+                      {label}
+                    </p>
+                    <h2 className="text-2xl font-serif mb-1" style={{ color: a.body.replace("0C", "04").replace("08", "04").replace("3C", "26") }}>
+                      {titulo}
+                    </h2>
+                    <p className="text-xs mb-2" style={{ color: a.subtitle }}>{subtitulo}</p>
+                    <div className="w-8 mb-4" style={{ height: "3px", borderRadius: "2px", background: a.bar }} />
+                    <p className="text-sm leading-relaxed font-light" style={{ color: a.body }}>
+                      {texto}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Etiqueta */}
-              <p className={`text-xs font-semibold tracking-widest uppercase ${a.label} mb-1`}>
-                {label}
-              </p>
-
-              {/* Título */}
-              <h2 className="text-2xl font-serif text-gray-900 mb-1">
-                {titulo}
-              </h2>
-
-              {/* Subtítulo */}
-              <p className="text-sm text-gray-400 mb-3">{subtitulo}</p>
-
-              {/* Línea divisora */}
-              <div className={`w-8 h-0.5 ${a.divider} rounded mb-4`} />
-
-              {/* Texto */}
-              <p className="text-base text-gray-500 font-light leading-relaxed">
-                {texto}
-              </p>
+              {/* Olas inferiores */}
+              <svg
+                className="block w-full mt-8"
+                viewBox="0 0 400 60"
+                preserveAspectRatio="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {w ? (
+                  <>
+                    <path d={`M400,30 C320,5 240,55 150,25 C80,5 30,45 0,25 L0,60 L400,60 Z`} fill={a.waveFill1} opacity="0.5" />
+                    <path d={`M400,42 C300,15 200,58 100,35 C40,18 10,50 0,40 L0,60 L400,60 Z`} fill={a.waveFill2} opacity="0.2" />
+                  </>
+                ) : (
+                  <>
+                    <path d={`M0,30 C80,5 160,55 250,25 C320,5 370,45 400,25 L400,60 L0,60 Z`} fill={a.waveFill1} opacity="0.5" />
+                    <path d={`M0,42 C100,15 200,58 300,35 C360,18 390,50 400,40 L400,60 L0,60 Z`} fill={a.waveFill2} opacity="0.2" />
+                  </>
+                )}
+              </svg>
             </div>
           );
         })}
