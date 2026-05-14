@@ -333,10 +333,11 @@ function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBg}`}>
-<div className="max-w-7xl mx-auto grid grid-cols-3 items-center px-4 md:px-8 py-3">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-3">
+
           {/* LOGO */}
           <div className="flex items-center gap-2">
-            <img src="Veick.png" alt="Logo VEICK" className="w-20 h-20 md:w-20 md:h-20 object-contain mix-blend-screen center" />
+            <img src="Veick.png" alt="Logo VEICK" className="w-17 h-17 md:w-17 md:h-17 object-contain mix-blend-screen" />
             <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">VEICK</h1>
           </div>
 
