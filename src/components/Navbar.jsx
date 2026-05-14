@@ -333,8 +333,7 @@ function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBg}`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-3">
-
+<div className="max-w-7xl mx-auto grid grid-cols-3 items-center px-4 md:px-8 py-3">
           {/* LOGO */}
           <div className="flex items-center gap-2">
             <img src="Veick.png" alt="Logo VEICK" className="w-20 h-20 md:w-20 md:h-20 object-contain mix-blend-screen center" />
@@ -342,8 +341,7 @@ function Navbar() {
           </div>
 
           {/* MENÚ DESKTOP */}
-          <div className="hidden md:flex space-x-8 font-medium">
-            {navItems.map(({ key, label }) => (
+<div className="hidden md:flex space-x-8 font-medium justify-center">            {navItems.map(({ key, label }) => (
               <button key={key} onClick={() => toggle(key)}
                 className={`relative group transition-colors duration-200 text-sm
                   ${activeSection === key ? "text-blue-300" : "text-white/85 hover:text-white"}`}>
@@ -355,8 +353,7 @@ function Navbar() {
           </div>
 
           {/* DERECHA DESKTOP */}
-          <div className="hidden md:flex items-center gap-3">
-            <button onClick={() => setShowDemo(true)}
+<div className="hidden md:flex items-center gap-3 justify-end">            <button onClick={() => setShowDemo(true)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
               <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
               En vivo
