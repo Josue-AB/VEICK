@@ -334,10 +334,10 @@ function Navbar() {
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBg}`}>
 <div className="max-w-7xl mx-auto grid grid-cols-3 items-center px-6 md:px-12 py-4">          {/* LOGO */}
-    <div className="flex items-center gap-3">
-  <img src="Veick_logo.png" alt="Logo VEICK" className="w-10 h-10 object-contain mix-blend-screen" />
-  <h1 className="text-xl font-bold text-white tracking-widest">VEICK</h1>
-</div>
+          <div className="flex items-center gap-2">
+            <img src="Veick.png" alt="Logo VEICK" className="w-20 h-20 md:w-20 md:h-20 object-contain mix-blend-screen center" />
+            <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">VEICK</h1>
+          </div>
 
           {/* MENÚ DESKTOP */}
 <div className="hidden md:flex space-x-8 font-medium justify-center">            {navItems.map(({ key, label }) => (
@@ -352,23 +352,56 @@ function Navbar() {
           </div>
 
           {/* DERECHA DESKTOP */}
-{/* DERECHA DESKTOP */}
-<div className="hidden md:flex items-center gap-3 justify-end">
-  {usuario ? (
-    <UserMenu nombre={usuario} onLogout={() => setUsuario(null)} />
-  ) : (
-    <>
-      <button onClick={() => setShowRegister(true)}
-        className="px-5 py-2 rounded-lg text-sm font-medium border border-white/60 text-white hover:bg-white/10 transition-all">
-        Regístrate
-      </button>
-      <button onClick={() => setShowLogin(true)}
-        className="px-5 py-2 rounded-lg text-sm font-semibold bg-white text-[#1a3f7a] hover:bg-blue-50 transition-all">
-        Inicia sesión
-      </button>
-    </>
-  )}
-</div>
+<div className="hidden md:flex items-center gap-3 justify-end">            <button onClick={() => setShowDemo(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
+              <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
+              En vivo
+            </button>
+
+            <div className="relative" ref={langRef}>
+              <button onClick={() => setLangOpen((p) => !p)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
+                <span>{selectedLang.flag}</span>
+                <span>{selectedLang.code.toUpperCase()}</span>
+                <svg className={`w-3 h-3 transition-transform duration-200 ${langOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-100 rounded-xl overflow-hidden z-50 shadow-lg">
+                  {idiomas.map((lang) => (
+                    <button key={lang.code}
+                      onClick={() => { setSelectedLang(lang); setLangOpen(false); }}
+                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left transition-colors
+                        ${selectedLang.code === lang.code ? "bg-blue-50 text-[#1a3f7a] font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                      <span>{lang.flag}</span>
+                      <span>{lang.label}</span>
+                      {selectedLang.code === lang.code && (
+                        <svg className="w-3 h-3 ml-auto text-[#1a3f7a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {usuario ? (
+              <UserMenu nombre={usuario} onLogout={() => setUsuario(null)} />
+            ) : (
+              <>
+                <button onClick={() => setShowRegister(true)}
+                  className="px-5 py-2 rounded-lg text-sm font-medium border border-white/60 text-white hover:bg-white/10 transition-all">
+                  Regístrate
+                </button>
+                <button onClick={() => setShowLogin(true)}
+                  className="px-5 py-2 rounded-lg text-sm font-semibold bg-white text-[#1a3f7a] hover:bg-blue-50 transition-all">
+                  Inicia sesión
+                </button>
+              </>
+            )}
+          </div>
 
           {/* BOTÓN HAMBURGUESA (solo móvil) */}
           <button
