@@ -43,7 +43,7 @@ function VideoSection() {
 
             {/* Reemplaza el src con tu video real */}
             <video
-              src="/tu-video.mp4"
+              src="Video_veick.mp4"
               className="w-full h-full object-cover"
               controls={playing}
               poster="/icon_principal.jpg"
