@@ -1,4 +1,3 @@
-import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import DemoModal from "./DemoModal";
 import LoginModal from "./LoginModal";
@@ -48,7 +47,8 @@ const sections = {
     subtitle: "Las personas con discapacidad auditiva enfrentan barreras diarias en espacios que deberían ser accesibles para todos.",
     content: (
       <div className="mt-6 space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+        {/* FIX: grid-cols-3 → responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { num: "2.3M", label: "personas con discapacidad auditiva en México (INEGI)" },
             { num: "80%",  label: "de entornos públicos sin intérpretes de LSM" },
@@ -140,7 +140,7 @@ const sections = {
         <div className="space-y-3">
           <input type="text"  placeholder="Tu nombre"    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" />
           <input type="email" placeholder="Tu correo"    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" />
-          <textarea rows={4}  placeholder="Tu mensaje..."className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 resize-none" />
+          <textarea rows={4}  placeholder="Tu mensaje..." className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 resize-none" />
           <button className="w-full bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium py-2.5 rounded-lg transition-colors">Enviar mensaje</button>
         </div>
       </div>
@@ -292,15 +292,16 @@ function UserMenu({ nombre, onLogout }) {
 
 /* ─── Navbar principal ─── */
 function Navbar() {
-  const [scrolled, setScrolled]         = useState(false);
+  const [scrolled, setScrolled]           = useState(false);
   const [activeSection, setActiveSection] = useState(null);
-  const [showDemo, setShowDemo]         = useState(false);
-  const [langOpen, setLangOpen]         = useState(false);
-  const [selectedLang, setSelectedLang] = useState(idiomas[0]);
-  const [showRegister, setShowRegister] = useState(false);
-  const [showLogin, setShowLogin]       = useState(false);
-  const [usuario, setUsuario]           = useState(null);
-  const langRef                         = useRef(null);
+  const [showDemo, setShowDemo]           = useState(false);
+  const [langOpen, setLangOpen]           = useState(false);
+  const [selectedLang, setSelectedLang]   = useState(idiomas[0]);
+  const [showRegister, setShowRegister]   = useState(false);
+  const [showLogin, setShowLogin]         = useState(false);
+  const [usuario, setUsuario]             = useState(null);
+  const [menuOpen, setMenuOpen]           = useState(false); // ← NUEVO: menú móvil
+  const langRef                           = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -316,29 +317,31 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Bloquear scroll cuando menú móvil está abierto
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
   const toggle  = (key) => setActiveSection((prev) => (prev === key ? null : key));
   const current = activeSection ? sections[activeSection] : null;
 
-  const navBg = scrolled || activeSection
+  const navBg = scrolled || activeSection || menuOpen
     ? "bg-[#1a3f7a] shadow-lg"
     : "bg-transparent";
 
   return (
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBg}`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-3">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-3">
 
           {/* LOGO */}
           <div className="flex items-center gap-2">
-            <img
-              src="Veick_logo.png"
-              alt="Logo VEICK"
-              className="w-14 h-14 object-contain mix-blend-screen"
-            />
-            <h1 className="text-2xl font-bold text-white tracking-wide">VEICK</h1>
+            <img src="Veick_logo.png" alt="Logo VEICK" className="w-12 h-12 md:w-14 md:h-14 object-contain mix-blend-screen" />
+            <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">VEICK</h1>
           </div>
 
-          {/* MENÚ */}
+          {/* MENÚ DESKTOP */}
           <div className="hidden md:flex space-x-8 font-medium">
             {navItems.map(({ key, label }) => (
               <button key={key} onClick={() => toggle(key)}
@@ -351,17 +354,14 @@ function Navbar() {
             ))}
           </div>
 
-          {/* DERECHA */}
+          {/* DERECHA DESKTOP */}
           <div className="hidden md:flex items-center gap-3">
-
-            {/* En vivo */}
             <button onClick={() => setShowDemo(true)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
               <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
               En vivo
             </button>
 
-            {/* Idioma */}
             <div className="relative" ref={langRef}>
               <button onClick={() => setLangOpen((p) => !p)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
@@ -391,7 +391,6 @@ function Navbar() {
               )}
             </div>
 
-            {/* Auth */}
             {usuario ? (
               <UserMenu nombre={usuario} onLogout={() => setUsuario(null)} />
             ) : (
@@ -407,12 +406,23 @@ function Navbar() {
               </>
             )}
           </div>
+
+          {/* BOTÓN HAMBURGUESA (solo móvil) */}
+          <button
+            className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5"
+            onClick={() => { setMenuOpen((p) => !p); setActiveSection(null); }}
+            aria-label="Menú"
+          >
+            <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+          </button>
         </div>
 
-        {/* PANEL DESPLEGABLE */}
-        {current && (
+        {/* PANEL DESPLEGABLE DESKTOP */}
+        {current && !menuOpen && (
           <div className="border-t border-white/15 bg-[#f0f5fc]">
-            <div className="max-w-7xl mx-auto px-8 py-6">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
               <div className="flex items-start justify-between mb-1">
                 <div>
                   <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-2 ${badgeColors[activeSection]}`}>
@@ -427,9 +437,87 @@ function Navbar() {
             </div>
           </div>
         )}
+
+        {/* MENÚ MÓVIL DESPLEGABLE */}
+        {menuOpen && (
+          <div className="md:hidden bg-[#1a3f7a] border-t border-white/15 pb-6">
+            {/* Links de navegación */}
+            <div className="px-4 pt-2 space-y-1">
+              {navItems.map(({ key, label }) => (
+                <button key={key}
+                  onClick={() => { toggle(key); }}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors
+                    ${activeSection === key ? "bg-white/20 text-blue-300" : "text-white/85 hover:bg-white/10 hover:text-white"}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sección expandida en móvil */}
+            {current && (
+              <div className="mx-4 mt-3 bg-[#f0f5fc] rounded-2xl p-4">
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-2 ${badgeColors[activeSection]}`}>
+                      {current.badge}
+                    </span>
+                    <h2 className="text-base font-medium text-gray-900">{current.title}</h2>
+                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">{current.subtitle}</p>
+                  </div>
+                  <button onClick={() => setActiveSection(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none ml-2">✕</button>
+                </div>
+                {current.content}
+              </div>
+            )}
+
+            {/* Divider */}
+            <div className="mx-4 my-4 border-t border-white/15" />
+
+            {/* Botones en vivo e idioma */}
+            <div className="px-4 flex items-center gap-2 mb-3">
+              <button onClick={() => { setShowDemo(true); setMenuOpen(false); }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium">
+                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
+                En vivo
+              </button>
+              <div className="flex gap-1">
+                {idiomas.map((lang) => (
+                  <button key={lang.code}
+                    onClick={() => setSelectedLang(lang)}
+                    className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors
+                      ${selectedLang.code === lang.code ? "bg-white text-[#1a3f7a]" : "border border-white/25 bg-white/10 text-white"}`}>
+                    {lang.flag} {lang.code.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Auth buttons */}
+            <div className="px-4 space-y-2">
+              {usuario ? (
+                <div className="flex items-center justify-between bg-white/10 rounded-xl px-4 py-3">
+                  <span className="text-white text-sm font-medium">{usuario}</span>
+                  <button onClick={() => { setUsuario(null); setMenuOpen(false); }}
+                    className="text-xs text-red-300 hover:text-red-200">Cerrar sesión</button>
+                </div>
+              ) : (
+                <>
+                  <button onClick={() => { setShowRegister(true); setMenuOpen(false); }}
+                    className="w-full py-3 rounded-xl text-sm font-medium border border-white/60 text-white hover:bg-white/10 transition-all">
+                    Regístrate
+                  </button>
+                  <button onClick={() => { setShowLogin(true); setMenuOpen(false); }}
+                    className="w-full py-3 rounded-xl text-sm font-semibold bg-white text-[#1a3f7a] hover:bg-blue-50 transition-all">
+                    Inicia sesión
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
-      {activeSection && <div className="fixed inset-0 z-40" onClick={() => setActiveSection(null)} />}
+      {activeSection && !menuOpen && <div className="fixed inset-0 z-40" onClick={() => setActiveSection(null)} />}
 
       {showDemo     && <DemoModal    onClose={() => setShowDemo(false)} />}
       {showRegister && <RegisterModal onClose={() => setShowRegister(false)} onSuccess={(n) => setUsuario(n)} />}
