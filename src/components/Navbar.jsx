@@ -336,10 +336,16 @@ function Navbar() {
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-3">
 
           {/* LOGO */}
-          <div className="flex items-center gap-2">
-            <img src="Veick.png" alt="Logo VEICK" className="w-17 h-17 md:w-17 md:h-17 object-contain mix-blend-screen" />
-            <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">VEICK</h1>
-          </div>
+<div className="flex items-center gap-2">
+  <img
+    src="Veick.png"
+    alt="Logo VEICK"
+    className="w-17 h-17 md:w-17 md:h-17 object-contain mix-blend-screen -ml-4"
+  />
+  <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">
+    VEICK
+  </h1>
+</div>
 
           {/* MENÚ DESKTOP */}
           <div className="hidden md:flex space-x-8 font-medium">
