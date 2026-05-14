@@ -455,7 +455,7 @@ function Navbar() {
 
             {/* Sección expandida en móvil */}
             {current && (
-              <div className="mx-4 mt-3 bg-[#f0f5fc] rounded-2xl p-4">
+  <div className="mx-4 mt-3 bg-[#f0f5fc] rounded-2xl p-4 overflow-y-auto max-h-[60vh]">
                 <div className="flex items-start justify-between mb-1">
                   <div>
                     <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-2 ${badgeColors[activeSection]}`}>
