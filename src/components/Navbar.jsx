@@ -370,22 +370,6 @@ function Navbar() {
   )}
 </div>
 
-            {usuario ? (
-              <UserMenu nombre={usuario} onLogout={() => setUsuario(null)} />
-            ) : (
-              <>
-                <button onClick={() => setShowRegister(true)}
-                  className="px-5 py-2 rounded-lg text-sm font-medium border border-white/60 text-white hover:bg-white/10 transition-all">
-                  Regístrate
-                </button>
-                <button onClick={() => setShowLogin(true)}
-                  className="px-5 py-2 rounded-lg text-sm font-semibold bg-white text-[#1a3f7a] hover:bg-blue-50 transition-all">
-                  Inicia sesión
-                </button>
-              </>
-            )}
-          </div>
-
           {/* BOTÓN HAMBURGUESA (solo móvil) */}
           <button
             className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5"
