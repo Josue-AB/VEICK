@@ -337,7 +337,7 @@ function Navbar() {
 
           {/* LOGO */}
           <div className="flex items-center gap-2">
-            <img src="Veick_logo.png" alt="Logo VEICK" className="w-12 h-12 md:w-14 md:h-14 object-contain mix-blend-screen" />
+            <img src="Veick.png" alt="Logo VEICK" className="w-12 h-12 md:w-14 md:h-14 object-contain mix-blend-screen" />
             <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">VEICK</h1>
           </div>
 

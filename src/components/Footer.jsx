@@ -19,7 +19,7 @@ function Footer() {
         {/* Bottom centrado */}
         <div className="flex flex-col items-center gap-3">
           <span className="text-xs font-medium tracking-widest uppercase bg-blue-700 text-blue-100 px-3 py-1 rounded-full">
-            Proyecto académico
+            Prototipo académico
           </span>
           <p className="text-xs text-blue-400">
             © 2026 VEICK — Todos los derechos reservados.
