@@ -164,13 +164,26 @@ const badgeColors = {
 
 /* ─── Modal de Registro ─── */
 function RegisterModal({ onClose, onSuccess }) {
-  const [form, setForm] = useState({ nombre: "", edad: "", nacionalidad: "", telefono: "" });
+  const [form, setForm] = useState({
+    nombre: "",
+    correo: "",
+    password: "",
+    confirmPassword: "",
+  });
+
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
     document.addEventListener("keydown", handleKey);
     document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
@@ -179,64 +192,273 @@ function RegisterModal({ onClose, onSuccess }) {
 
   const validate = () => {
     const e = {};
-    if (!form.nombre.trim()) e.nombre = "El nombre es requerido";
-    if (!form.edad || form.edad < 1 || form.edad > 120) e.edad = "Ingresa una edad válida";
-    if (!form.nacionalidad.trim()) e.nacionalidad = "La nacionalidad es requerida";
-    if (!/^\d{7,15}$/.test(form.telefono.replace(/\s/g, ""))) e.telefono = "Número inválido (7-15 dígitos)";
+
+    if (!form.nombre.trim()) {
+      e.nombre = "El nombre es requerido";
+    }
+
+    if (!form.correo.trim()) {
+      e.correo = "El correo es requerido";
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo)
+    ) {
+      e.correo = "Correo inválido";
+    }
+
+    if (!form.password.trim()) {
+      e.password = "La contraseña es requerida";
+    } else if (form.password.length < 6) {
+      e.password = "Mínimo 6 caracteres";
+    }
+
+    if (form.confirmPassword !== form.password) {
+      e.confirmPassword = "Las contraseñas no coinciden";
+    }
+
     return e;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
-    onSuccess(form.nombre.trim());
-    onClose();
+
+    if (Object.keys(e).length) {
+      setErrors(e);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "http://localhost:3001/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nombre: form.nombre.trim(),
+            correo: form.correo.trim().toLowerCase(),
+            password: form.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({
+          correo: data.message,
+        });
+        return;
+      }
+
+      onSuccess(data.nombre);
+      onClose();
+
+    } catch (error) {
+      console.error(error);
+
+      alert("No se pudo conectar al servidor");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const field = (key, label, type = "text", extra = {}) => (
+  const field = (
+    key,
+    label,
+    type = "text",
+    extra = {}
+  ) => (
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-600 mb-1">
+        {label}
+      </label>
+
       <input
         type={type}
         value={form[key]}
-        onChange={(ev) => { setForm({ ...form, [key]: ev.target.value }); setErrors({ ...errors, [key]: "" }); }}
+        onChange={(ev) => {
+          setForm({
+            ...form,
+            [key]: ev.target.value,
+          });
+
+          setErrors({
+            ...errors,
+            [key]: "",
+          });
+        }}
         className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-colors
-          ${errors[key] ? "border-red-300 focus:border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"}`}
+        ${
+          errors[key]
+            ? "border-red-300 focus:border-red-400 bg-red-50"
+            : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"
+        }`}
         {...extra}
       />
-      {errors[key] && <p className="text-xs text-red-500 mt-1">{errors[key]}</p>}
+
+      {errors[key] && (
+        <p className="text-xs text-red-500 mt-1">
+          {errors[key]}
+        </p>
+      )}
     </div>
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      onClick={(e) =>
+        e.target === e.currentTarget && onClose()
+      }
+    >
       <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
         <div className="px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-medium text-gray-900">Crear cuenta</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Únete a la comunidad VEICK</p>
+              <h2 className="text-lg font-medium text-gray-900">
+                Crear cuenta
+              </h2>
+
+              <p className="text-xs text-gray-400 mt-0.5">
+                Únete a la comunidad VEICK
+              </p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1">✕</button>
+
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"
+            >
+              ✕
+            </button>
           </div>
         </div>
+
         <div className="px-6 py-5 space-y-4">
           {field("nombre", "Nombre completo")}
-          <div className="grid grid-cols-2 gap-3">
-            {field("edad",         "Edad",         "number", { min: 1, max: 120, placeholder: "Ej. 25" })}
-            {field("nacionalidad", "Nacionalidad", "text",   { placeholder: "Ej. Mexicana" })}
+
+          {field("correo", "Correo electrónico", "email", {
+            placeholder: "correo@ejemplo.com",
+          })}
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Contraseña
+            </label>
+
+            <div className="relative">
+              <input
+                type={showPass ? "text" : "password"}
+                value={form.password}
+                onChange={(e) => {
+                  setForm({
+                    ...form,
+                    password: e.target.value,
+                  });
+
+                  setErrors({
+                    ...errors,
+                    password: "",
+                  });
+                }}
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm pr-10 focus:outline-none
+                ${
+                  errors.password
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"
+                }`}
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPass((prev) => !prev)
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                👁️
+              </button>
+            </div>
+
+            {errors.password && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.password}
+              </p>
+            )}
           </div>
-          {field("telefono", "Número de teléfono", "tel", { placeholder: "Ej. 5512345678" })}
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Confirmar contraseña
+            </label>
+
+            <div className="relative">
+              <input
+                type={
+                  showConfirmPass
+                    ? "text"
+                    : "password"
+                }
+                value={form.confirmPassword}
+                onChange={(e) => {
+                  setForm({
+                    ...form,
+                    confirmPassword:
+                      e.target.value,
+                  });
+
+                  setErrors({
+                    ...errors,
+                    confirmPassword: "",
+                  });
+                }}
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm pr-10 focus:outline-none
+                ${
+                  errors.confirmPassword
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"
+                }`}
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowConfirmPass(
+                    (prev) => !prev
+                  )
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                👁️
+              </button>
+            </div>
+
+            {errors.confirmPassword && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
         </div>
+
         <div className="px-6 pb-6 flex gap-3">
-          <button onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
             Cancelar
           </button>
-          <button onClick={handleSubmit}
-            className="flex-1 py-2.5 rounded-xl bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium transition-colors">
-            Registrarme
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 py-2.5 rounded-xl bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium transition-colors disabled:opacity-60"
+          >
+            {loading
+              ? "Registrando..."
+              : "Registrarme"}
           </button>
         </div>
       </div>

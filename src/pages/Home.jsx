@@ -5,6 +5,7 @@ import Beneficios from "../components/Beneficios";
 import Footer from "../components/Footer";
 import Vision from "../components/Vision";
 import Mision from "../components/Mision";
+import ResetPassword from "../components/ResetPassword";
 
 function Home() {
   return (

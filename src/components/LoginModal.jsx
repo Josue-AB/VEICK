@@ -1,14 +1,4 @@
 import { useState, useEffect } from "react";
-import emailjs from "@emailjs/browser";
-
-const EMAILJS_SERVICE_ID  = "TU_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
-const EMAILJS_PUBLIC_KEY  = "TU_PUBLIC_KEY";
-
-const USUARIOS_DB = {
-  "usuario@correo.com": { password: "veick2024", nombre: "Juan García" },
-  "demo@veick.mx":      { password: "demo1234",  nombre: "Usuario Demo" },
-};
 
 export default function LoginModal({ onClose, onLoginSuccess }) {
   const [vista, setVista]             = useState("login");
@@ -29,37 +19,112 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
     };
   }, [onClose]);
 
-  const handleLogin = () => {
-    const e = {};
-    if (!form.correo.trim())   e.correo   = "Ingresa tu correo";
-    if (!form.password.trim()) e.password = "Ingresa tu contraseña";
-    if (Object.keys(e).length) { setErrors(e); return; }
-    const user = USUARIOS_DB[form.correo.toLowerCase()];
-    if (!user) { setErrors({ correo: "Correo no registrado" }); return; }
-    if (user.password !== form.password) { setErrors({ password: "Contraseña incorrecta" }); return; }
-    onLoginSuccess(user.nombre);
-    onClose();
-  };
+const handleLogin = async () => {
+  const e = {};
 
-  const handleForgot = async () => {
-    if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)) {
-      setErrors({ forgotEmail: "Ingresa un correo válido" }); return;
+  if (!form.correo.trim()) {
+    e.correo = "Ingresa tu correo";
+  }
+
+  if (!form.password.trim()) {
+    e.password = "Ingresa tu contraseña";
+  }
+
+  if (Object.keys(e).length) {
+    setErrors(e);
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      "http://localhost:3001/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          correo: form.correo.trim().toLowerCase(),
+          password: form.password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrors({
+        password: data.message || "Error al iniciar sesión",
+      });
+      return;
     }
-    const user = USUARIOS_DB[forgotEmail.toLowerCase()];
-    if (!user) { setErrors({ forgotEmail: "No encontramos una cuenta con ese correo" }); return; }
-    setLoading(true);
-    try {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID,
-        { to_email: forgotEmail.toLowerCase(), user_name: user.nombre, password: user.password },
-        EMAILJS_PUBLIC_KEY
-      );
-      setSentOk(true);
-    } catch {
-      setErrors({ forgotEmail: "Error al enviar. Intenta de nuevo." });
-    } finally {
-      setLoading(false);
+
+    onLoginSuccess(data.nombre);
+    onClose();
+
+  } catch (error) {
+    console.error("Error login:", error);
+
+    setErrors({
+      password: "No se pudo conectar al servidor",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleForgot = async () => {
+  if (
+    !forgotEmail.trim() ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)
+  ) {
+    setErrors({
+      forgotEmail: "Ingresa un correo válido",
+    });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      "http://localhost:3001/forgot-password",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          correo: forgotEmail.trim().toLowerCase(),
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrors({
+        forgotEmail:
+          data.message || "Error al enviar correo",
+      });
+      return;
     }
-  };
+
+    setSentOk(true);
+
+  } catch (error) {
+    console.error("Forgot password error:", error);
+
+    setErrors({
+      forgotEmail:
+        "No se pudo conectar al servidor",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const inputBase = (key) => ({
     width: "100%",
@@ -187,12 +252,17 @@ export default function LoginModal({ onClose, onLoginSuccess }) {
                 Cancelar
               </button>
               <button
-                onClick={handleLogin}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90"
-                style={{ background: "#185FA5", color: "#fff", border: "none" }}
-              >
-                Entrar
-              </button>
+  onClick={handleLogin}
+  disabled={loading}
+  className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-60"
+  style={{
+    background: "#185FA5",
+    color: "#fff",
+    border: "none"
+  }}
+>
+  {loading ? "Ingresando..." : "Entrar"}
+</button>
             </div>
           </div>
         )}
