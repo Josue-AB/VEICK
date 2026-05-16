@@ -61,8 +61,14 @@ const handleLogin = async () => {
       return;
     }
 
-    onLoginSuccess(data.nombre);
-    onClose();
+// Guardar sesión
+localStorage.setItem(
+  "usuario",
+  JSON.stringify(data)
+);
+
+onLoginSuccess(data);
+onClose();
 
   } catch (error) {
     console.error("Error login:", error);

@@ -521,7 +521,15 @@ function Navbar() {
   const [selectedLang, setSelectedLang]   = useState(idiomas[0]);
   const [showRegister, setShowRegister]   = useState(false);
   const [showLogin, setShowLogin]         = useState(false);
-  const [usuario, setUsuario]             = useState(null);
+  const [usuario, setUsuario] = useState(() => {
+  const savedUser = localStorage.getItem("usuario");
+
+  if (savedUser) {
+    return JSON.parse(savedUser).nombre;
+  }
+
+  return null;
+});
   const [menuOpen, setMenuOpen]           = useState(false); // ← NUEVO: menú móvil
   const langRef                           = useRef(null);
 
@@ -619,7 +627,13 @@ function Navbar() {
             </div>
 
             {usuario ? (
-              <UserMenu nombre={usuario} onLogout={() => setUsuario(null)} />
+              <UserMenu
+  nombre={usuario}
+  onLogout={() => {
+    localStorage.removeItem("usuario");
+    setUsuario(null);
+  }}
+/>
             ) : (
               <>
                 <button onClick={() => setShowRegister(true)}
@@ -724,8 +738,16 @@ function Navbar() {
               {usuario ? (
                 <div className="flex items-center justify-between bg-white/10 rounded-xl px-4 py-3">
                   <span className="text-white text-sm font-medium">{usuario}</span>
-                  <button onClick={() => { setUsuario(null); setMenuOpen(false); }}
-                    className="text-xs text-red-300 hover:text-red-200">Cerrar sesión</button>
+                  <button
+  onClick={() => {
+    localStorage.removeItem("usuario");
+    setUsuario(null);
+    setMenuOpen(false);
+  }}
+  className="text-xs text-red-300 hover:text-red-200"
+>
+  Cerrar sesión
+</button>
                 </div>
               ) : (
                 <>

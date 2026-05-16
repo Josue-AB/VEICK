@@ -5,15 +5,34 @@ import Beneficios from "../components/Beneficios";
 import Footer from "../components/Footer";
 import Vision from "../components/Vision";
 import Mision from "../components/Mision";
-import ResetPassword from "../components/ResetPassword";
 
-function Home() {
+export default function Home({
+  usuario,
+  setUsuario,
+}) {
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("usuario");
+    setUsuario(null);
+  };
+
   return (
     <>
-      <Navbar />
+      <Navbar
+        usuario={usuario}
+        cerrarSesion={cerrarSesion}
+      />
 
-      {/* CONTENIDO */}
       <div className="bg-blue-100 text-gray-800 pt-20 min-h-screen">
+
+        {usuario && (
+          <div className="text-center py-4">
+            <h2 className="text-xl font-semibold text-[#1a3f7a]">
+              Hola, {usuario?.nombre} 👋
+            </h2>
+          </div>
+        )}
+
         <Hero />
         <VideoSection />
         <Vision />
@@ -24,5 +43,3 @@ function Home() {
     </>
   );
 }
-
-export default Home;
