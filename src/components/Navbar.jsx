@@ -8,7 +8,8 @@ const idiomas = [
   { code: "lsm", label: "LSM",    flag: "🤟" },
 ];
 
-const sections = {
+// sections now receives props so it can use component-level state
+const buildSections = ({ enviandoMensaje, contactoForm, setContactoForm, handleEnviarMensaje }) => ({
   quienes: {
     badge: "Nuestro equipo",
     title: "¿Quiénes somos?",
@@ -47,7 +48,6 @@ const sections = {
     subtitle: "Las personas con discapacidad auditiva enfrentan barreras diarias en espacios que deberían ser accesibles para todos.",
     content: (
       <div className="mt-6 space-y-4">
-        {/* FIX: grid-cols-3 → responsive */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { num: "2.3M", label: "personas con discapacidad auditiva en México (INEGI)" },
@@ -124,9 +124,9 @@ const sections = {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
           {[
-            { icon: "✉️", title: "Correo electrónico", desc: "contacto@proyecto.mx" },
-            { icon: "📹", title: "Videollamada en LSM", desc: "Agenda una sesión con intérprete certificado." },
-            { icon: "📍", title: "Ubicación",           desc: "Guadalajara, Jalisco, México." },
+            { icon: "✉️", title: "Correo electrónico",   desc: "veick.oficial@com" },
+            { icon: "📹", title: "Videollamada en LSM",  desc: "Agenda una sesión con intérprete certificado." },
+            { icon: "📍", title: "Ubicación",            desc: "Guadalajara, Jalisco, México." },
           ].map((c) => (
             <div key={c.title} className="flex items-start gap-3 bg-white border border-gray-100 rounded-xl p-4">
               <span className="text-lg mt-0.5">{c.icon}</span>
@@ -137,16 +137,41 @@ const sections = {
             </div>
           ))}
         </div>
+
         <div className="space-y-3">
-          <input type="text"  placeholder="Tu nombre"    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" />
-          <input type="email" placeholder="Tu correo"    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" />
-          <textarea rows={4}  placeholder="Tu mensaje..." className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 resize-none" />
-          <button className="w-full bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium py-2.5 rounded-lg transition-colors">Enviar mensaje</button>
+          <input
+            type="text"
+            placeholder="Tu nombre"
+            value={contactoForm.nombre}
+            onChange={(e) => setContactoForm((prev) => ({ ...prev, nombre: e.target.value }))}
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+          />
+          <input
+            type="email"
+            placeholder="Tu correo"
+            value={contactoForm.correo}
+            onChange={(e) => setContactoForm((prev) => ({ ...prev, correo: e.target.value }))}
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+          />
+          <textarea
+            rows={4}
+            placeholder="Tu mensaje..."
+            value={contactoForm.mensaje}
+            onChange={(e) => setContactoForm((prev) => ({ ...prev, mensaje: e.target.value }))}
+            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 resize-none"
+          />
+          <button
+            onClick={handleEnviarMensaje}
+            disabled={enviandoMensaje}
+            className="w-full bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {enviandoMensaje ? "Enviando..." : "Enviar mensaje"}
+          </button>
         </div>
       </div>
     ),
   },
-};
+});
 
 const navItems = [
   { key: "quienes",  label: "¿Quiénes Somos?" },
@@ -164,26 +189,16 @@ const badgeColors = {
 
 /* ─── Modal de Registro ─── */
 function RegisterModal({ onClose, onSuccess }) {
-  const [form, setForm] = useState({
-    nombre: "",
-    correo: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [showPass, setShowPass] = useState(false);
+  const [form, setForm] = useState({ nombre: "", correo: "", password: "", confirmPassword: "" });
+  const [errors, setErrors]         = useState({});
+  const [loading, setLoading]       = useState(false);
+  const [showPass, setShowPass]     = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-
+    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handleKey);
     document.body.style.overflow = "hidden";
-
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
@@ -192,273 +207,115 @@ function RegisterModal({ onClose, onSuccess }) {
 
   const validate = () => {
     const e = {};
-
-    if (!form.nombre.trim()) {
-      e.nombre = "El nombre es requerido";
-    }
-
-    if (!form.correo.trim()) {
-      e.correo = "El correo es requerido";
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo)
-    ) {
-      e.correo = "Correo inválido";
-    }
-
-    if (!form.password.trim()) {
-      e.password = "La contraseña es requerida";
-    } else if (form.password.length < 6) {
-      e.password = "Mínimo 6 caracteres";
-    }
-
-    if (form.confirmPassword !== form.password) {
-      e.confirmPassword = "Las contraseñas no coinciden";
-    }
-
+    if (!form.nombre.trim())  e.nombre = "El nombre es requerido";
+    if (!form.correo.trim())  e.correo = "El correo es requerido";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo)) e.correo = "Correo inválido";
+    if (!form.password.trim()) e.password = "La contraseña es requerida";
+    else if (form.password.length < 6) e.password = "Mínimo 6 caracteres";
+    if (form.confirmPassword !== form.password) e.confirmPassword = "Las contraseñas no coinciden";
     return e;
   };
 
   const handleSubmit = async () => {
     const e = validate();
-
-    if (Object.keys(e).length) {
-      setErrors(e);
-      return;
-    }
-
+    if (Object.keys(e).length) { setErrors(e); return; }
     setLoading(true);
-
     try {
-      const response = await fetch(
-        "http://localhost:3001/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nombre: form.nombre.trim(),
-            correo: form.correo.trim().toLowerCase(),
-            password: form.password,
-          }),
-        }
-      );
-
+      const response = await fetch("http://localhost:3001/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre.trim(),
+          correo: form.correo.trim().toLowerCase(),
+          password: form.password,
+        }),
+      });
       const data = await response.json();
-
-      if (!response.ok) {
-        setErrors({
-          correo: data.message,
-        });
-        return;
-      }
-
+      if (!response.ok) { setErrors({ correo: data.message }); return; }
       onSuccess(data.nombre);
       onClose();
-
     } catch (error) {
       console.error(error);
-
       alert("No se pudo conectar al servidor");
     } finally {
       setLoading(false);
     }
   };
 
-  const field = (
-    key,
-    label,
-    type = "text",
-    extra = {}
-  ) => (
+  const field = (key, label, type = "text", extra = {}) => (
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">
-        {label}
-      </label>
-
+      <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
       <input
         type={type}
         value={form[key]}
-        onChange={(ev) => {
-          setForm({
-            ...form,
-            [key]: ev.target.value,
-          });
-
-          setErrors({
-            ...errors,
-            [key]: "",
-          });
-        }}
+        onChange={(ev) => { setForm({ ...form, [key]: ev.target.value }); setErrors({ ...errors, [key]: "" }); }}
         className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-colors
-        ${
-          errors[key]
-            ? "border-red-300 focus:border-red-400 bg-red-50"
-            : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"
-        }`}
+          ${errors[key] ? "border-red-300 focus:border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"}`}
         {...extra}
       />
-
-      {errors[key] && (
-        <p className="text-xs text-red-500 mt-1">
-          {errors[key]}
-        </p>
-      )}
+      {errors[key] && <p className="text-xs text-red-500 mt-1">{errors[key]}</p>}
     </div>
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-      onClick={(e) =>
-        e.target === e.currentTarget && onClose()
-      }
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
         <div className="px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-medium text-gray-900">
-                Crear cuenta
-              </h2>
-
-              <p className="text-xs text-gray-400 mt-0.5">
-                Únete a la comunidad VEICK
-              </p>
+              <h2 className="text-lg font-medium text-gray-900">Crear cuenta</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Únete a la comunidad VEICK</p>
             </div>
-
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1"
-            >
-              ✕
-            </button>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none px-1">✕</button>
           </div>
         </div>
 
         <div className="px-6 py-5 space-y-4">
           {field("nombre", "Nombre completo")}
-
-          {field("correo", "Correo electrónico", "email", {
-            placeholder: "correo@ejemplo.com",
-          })}
+          {field("correo", "Correo electrónico", "email", { placeholder: "correo@ejemplo.com" })}
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Contraseña
-            </label>
-
+            <label className="block text-xs font-medium text-gray-600 mb-1">Contraseña</label>
             <div className="relative">
               <input
                 type={showPass ? "text" : "password"}
                 value={form.password}
-                onChange={(e) => {
-                  setForm({
-                    ...form,
-                    password: e.target.value,
-                  });
-
-                  setErrors({
-                    ...errors,
-                    password: "",
-                  });
-                }}
+                onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm pr-10 focus:outline-none
-                ${
-                  errors.password
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"
-                }`}
+                  ${errors.password ? "border-red-300 bg-red-50" : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"}`}
               />
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowPass((prev) => !prev)
-                }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-              >
-                👁️
-              </button>
+              <button type="button" onClick={() => setShowPass((p) => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">👁️</button>
             </div>
-
-            {errors.password && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.password}
-              </p>
-            )}
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Confirmar contraseña
-            </label>
-
+            <label className="block text-xs font-medium text-gray-600 mb-1">Confirmar contraseña</label>
             <div className="relative">
               <input
-                type={
-                  showConfirmPass
-                    ? "text"
-                    : "password"
-                }
+                type={showConfirmPass ? "text" : "password"}
                 value={form.confirmPassword}
-                onChange={(e) => {
-                  setForm({
-                    ...form,
-                    confirmPassword:
-                      e.target.value,
-                  });
-
-                  setErrors({
-                    ...errors,
-                    confirmPassword: "",
-                  });
-                }}
+                onChange={(e) => { setForm({ ...form, confirmPassword: e.target.value }); setErrors({ ...errors, confirmPassword: "" }); }}
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm pr-10 focus:outline-none
-                ${
-                  errors.confirmPassword
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"
-                }`}
+                  ${errors.confirmPassword ? "border-red-300 bg-red-50" : "border-gray-200 focus:border-[#1a3f7a] focus:ring-1 focus:ring-blue-100"}`}
               />
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowConfirmPass(
-                    (prev) => !prev
-                  )
-                }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-              >
-                👁️
-              </button>
+              <button type="button" onClick={() => setShowConfirmPass((p) => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">👁️</button>
             </div>
-
-            {errors.confirmPassword && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.confirmPassword}
-              </p>
-            )}
+            {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
           </div>
         </div>
 
         <div className="px-6 pb-6 flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
+          <button onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
             Cancelar
           </button>
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="flex-1 py-2.5 rounded-xl bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium transition-colors disabled:opacity-60"
-          >
-            {loading
-              ? "Registrando..."
-              : "Registrarme"}
+          <button onClick={handleSubmit} disabled={loading}
+            className="flex-1 py-2.5 rounded-xl bg-[#1a3f7a] hover:bg-[#15336a] text-white text-sm font-medium transition-colors disabled:opacity-60">
+            {loading ? "Registrando..." : "Registrarme"}
           </button>
         </div>
       </div>
@@ -486,7 +343,8 @@ function UserMenu({ nombre, onLogout }) {
           {initials}
         </div>
         <span className="text-sm font-medium text-white max-w-[120px] truncate">{nombre}</span>
-        <svg className={`w-3 h-3 text-white/70 transition-transform ${open ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <svg className={`w-3 h-3 text-white/70 transition-transform ${open ? "rotate-180" : ""}`}
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
@@ -521,17 +379,46 @@ function Navbar() {
   const [selectedLang, setSelectedLang]   = useState(idiomas[0]);
   const [showRegister, setShowRegister]   = useState(false);
   const [showLogin, setShowLogin]         = useState(false);
+  const [menuOpen, setMenuOpen]           = useState(false);
+  const [contactoForm, setContactoForm]   = useState({ nombre: "", correo: "", mensaje: "" });
+  const [enviandoMensaje, setEnviandoMensaje] = useState(false);
   const [usuario, setUsuario] = useState(() => {
-  const savedUser = localStorage.getItem("usuario");
+    try {
+      const savedUser = localStorage.getItem("usuario");
+      return savedUser ? JSON.parse(savedUser).nombre : null;
+    } catch {
+      return null;
+    }
+  });
 
-  if (savedUser) {
-    return JSON.parse(savedUser).nombre;
-  }
+  const langRef = useRef(null);
 
-  return null;
-});
-  const [menuOpen, setMenuOpen]           = useState(false); // ← NUEVO: menú móvil
-  const langRef                           = useRef(null);
+  const handleEnviarMensaje = async () => {
+    if (!contactoForm.nombre.trim() || !contactoForm.correo.trim() || !contactoForm.mensaje.trim()) {
+      alert("Completa todos los campos");
+      return;
+    }
+    setEnviandoMensaje(true);
+    try {
+      const response = await fetch("http://localhost:3001/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contactoForm),
+      });
+      const data = await response.json();
+      if (!response.ok) { alert(data.message); return; }
+      alert("Tu mensaje ha sido enviado, pronto te leeremos.");
+      setContactoForm({ nombre: "", correo: "", mensaje: "" });
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo conectar con el servidor");
+    } finally {
+      setEnviandoMensaje(false);
+    }
+  };
+
+  // Build sections inside the component so they have access to state
+  const sections = buildSections({ enviandoMensaje, contactoForm, setContactoForm, handleEnviarMensaje });
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -547,7 +434,6 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Bloquear scroll cuando menú móvil está abierto
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -566,15 +452,11 @@ function Navbar() {
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-3">
 
           {/* LOGO */}
-<div className="flex items-center gap-2 -ml-10">  <img
-    src="Veick.png"
-    alt="Logo VEICK"
-    className="w-17 h-17 md:w-17 md:h-17 object-contain mix-blend-screen -ml-4"
-  />
-  <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">
-    VEICK
-  </h1>
-</div>
+          <div className="flex items-center gap-2 -ml-10">
+            <img src="Veick.png" alt="Logo VEICK"
+              className="w-17 h-17 md:w-17 md:h-17 object-contain mix-blend-screen -ml-4" />
+            <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">VEICK</h1>
+          </div>
 
           {/* MENÚ DESKTOP */}
           <div className="hidden md:flex space-x-8 font-medium">
@@ -602,7 +484,8 @@ function Navbar() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium hover:bg-white/20 transition-all">
                 <span>{selectedLang.flag}</span>
                 <span>{selectedLang.code.toUpperCase()}</span>
-                <svg className={`w-3 h-3 transition-transform duration-200 ${langOpen ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <svg className={`w-3 h-3 transition-transform duration-200 ${langOpen ? "rotate-180" : ""}`}
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
@@ -627,13 +510,7 @@ function Navbar() {
             </div>
 
             {usuario ? (
-              <UserMenu
-  nombre={usuario}
-  onLogout={() => {
-    localStorage.removeItem("usuario");
-    setUsuario(null);
-  }}
-/>
+              <UserMenu nombre={usuario} onLogout={() => { localStorage.removeItem("usuario"); setUsuario(null); }} />
             ) : (
               <>
                 <button onClick={() => setShowRegister(true)}
@@ -649,11 +526,8 @@ function Navbar() {
           </div>
 
           {/* BOTÓN HAMBURGUESA (solo móvil) */}
-          <button
-            className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5"
-            onClick={() => { setMenuOpen((p) => !p); setActiveSection(null); }}
-            aria-label="Menú"
-          >
+          <button className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5"
+            onClick={() => { setMenuOpen((p) => !p); setActiveSection(null); }} aria-label="Menú">
             <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
             <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
             <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
@@ -682,11 +556,9 @@ function Navbar() {
         {/* MENÚ MÓVIL DESPLEGABLE */}
         {menuOpen && (
           <div className="md:hidden bg-[#1a3f7a] border-t border-white/15 pb-6">
-            {/* Links de navegación */}
             <div className="px-4 pt-2 space-y-1">
               {navItems.map(({ key, label }) => (
-                <button key={key}
-                  onClick={() => { toggle(key); }}
+                <button key={key} onClick={() => toggle(key)}
                   className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors
                     ${activeSection === key ? "bg-white/20 text-blue-300" : "text-white/85 hover:bg-white/10 hover:text-white"}`}>
                   {label}
@@ -694,9 +566,8 @@ function Navbar() {
               ))}
             </div>
 
-            {/* Sección expandida en móvil */}
             {current && (
-  <div className="mx-4 mt-3 bg-[#f0f5fc] rounded-2xl p-4 overflow-y-auto max-h-[60vh]">
+              <div className="mx-4 mt-3 bg-[#f0f5fc] rounded-2xl p-4 overflow-y-auto max-h-[60vh]">
                 <div className="flex items-start justify-between mb-1">
                   <div>
                     <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-2 ${badgeColors[activeSection]}`}>
@@ -711,10 +582,8 @@ function Navbar() {
               </div>
             )}
 
-            {/* Divider */}
             <div className="mx-4 my-4 border-t border-white/15" />
 
-            {/* Botones en vivo e idioma */}
             <div className="px-4 flex items-center gap-2 mb-3">
               <button onClick={() => { setShowDemo(true); setMenuOpen(false); }}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/25 bg-white/10 text-white text-xs font-medium">
@@ -723,8 +592,7 @@ function Navbar() {
               </button>
               <div className="flex gap-1">
                 {idiomas.map((lang) => (
-                  <button key={lang.code}
-                    onClick={() => setSelectedLang(lang)}
+                  <button key={lang.code} onClick={() => setSelectedLang(lang)}
                     className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors
                       ${selectedLang.code === lang.code ? "bg-white text-[#1a3f7a]" : "border border-white/25 bg-white/10 text-white"}`}>
                     {lang.flag} {lang.code.toUpperCase()}
@@ -733,21 +601,14 @@ function Navbar() {
               </div>
             </div>
 
-            {/* Auth buttons */}
             <div className="px-4 space-y-2">
               {usuario ? (
                 <div className="flex items-center justify-between bg-white/10 rounded-xl px-4 py-3">
                   <span className="text-white text-sm font-medium">{usuario}</span>
-                  <button
-  onClick={() => {
-    localStorage.removeItem("usuario");
-    setUsuario(null);
-    setMenuOpen(false);
-  }}
-  className="text-xs text-red-300 hover:text-red-200"
->
-  Cerrar sesión
-</button>
+                  <button onClick={() => { localStorage.removeItem("usuario"); setUsuario(null); setMenuOpen(false); }}
+                    className="text-xs text-red-300 hover:text-red-200">
+                    Cerrar sesión
+                  </button>
                 </div>
               ) : (
                 <>

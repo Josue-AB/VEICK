@@ -197,7 +197,7 @@ app.post("/forgot-password", async (req, res) => {
 
     // Enviar correo
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"VEICK" <${process.env.EMAIL_USER}>`,
       to: correo,
       subject: "Recuperar contraseña - VEICK",
       html: `
@@ -235,6 +235,70 @@ app.post("/forgot-password", async (req, res) => {
     });
   }
 });
+
+/* ==========================
+   CONTACTO
+========================== */
+app.post("/contact", async (req, res) => {
+  try {
+    const {
+      nombre,
+      correo,
+      mensaje,
+    } = req.body;
+
+    if (!nombre || !correo || !mensaje) {
+      return res.status(400).json({
+        message: "Todos los campos son obligatorios",
+      });
+    }
+
+    await transporter.sendMail({
+      from: `"VEICK WEB" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_RECEIVER,
+      subject: "Nuevo mensaje desde VEICK",
+      html: `
+        <div style="font-family: Arial; padding: 20px;">
+          <h2>Nuevo mensaje de contacto</h2>
+
+          <p>
+            <strong>Nombre:</strong>
+            ${nombre}
+          </p>
+
+          <p>
+            <strong>Correo:</strong>
+            ${correo}
+          </p>
+
+          <p>
+            <strong>Mensaje:</strong>
+          </p>
+
+          <div style="
+            background:#f5f5f5;
+            padding:15px;
+            border-radius:10px;
+          ">
+            ${mensaje}
+          </div>
+        </div>
+      `,
+    });
+
+    res.json({
+      message: "Mensaje enviado correctamente",
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "No se pudo enviar el mensaje",
+    });
+  }
+});
+
 
 /* ==========================
    RESET PASSWORD
