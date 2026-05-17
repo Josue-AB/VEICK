@@ -5,7 +5,6 @@ import LoginModal from "./LoginModal";
 const idiomas = [
   { code: "es", label: "Español", flag: "🇲🇽" },
   { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "lsm", label: "LSM",    flag: "🤟" },
 ];
 
 // sections now receives props so it can use component-level state
